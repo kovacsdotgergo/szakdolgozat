@@ -3,7 +3,6 @@ import esc_dataset
 import sys, os, subprocess
 import wget
 
-
 def get_mean_and_std(dataset, std_avg=True):
     """
     @brief calculates the mean and standard deviation on the data
