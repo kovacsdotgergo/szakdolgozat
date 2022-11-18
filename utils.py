@@ -67,9 +67,9 @@ def setup_env():
             raise FileNotFoundError('ESC-50 repository not found')
     else:
         if not os.path.exists(base_path + '/ast'):
-            subprocess.run('git clone https://github.com/YuanGongND/ast')
+            subprocess.run(['git', 'clone', 'https://github.com/YuanGongND/ast'])
         if not os.path.exists(base_path + '/ESC-50'):
-            subprocess.run('git clone https://github.com/karolpiczak/ESC-50.git')
+            subprocess.run(['git', 'clone', 'https://github.com/karolpiczak/ESC-50.git'])
     if base_path + '/ast' not in sys.path:
         sys.path.append(base_path + '/ast')
 
