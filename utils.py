@@ -54,37 +54,42 @@ def setup_env():
         running_in = 'kaggle'
     else:
         running_in = 'local'
+    print(f'Running in {running_in}')
+    base_path = os.path.dirname(os.path.realpath(__file__))
+
+    #installing required packages
+    subprocess.run('pip install -r requirements.txt')
 
     #checking required repositories
-    if running_in=='local':
-        if not os.path.exists('./ast'):
+    if running_in == 'local':
+        if not os.path.exists(base_path + '/ast'):
             print('Clone AST from https://github.com/YuanGongND/ast')
             raise FileNotFoundError('AST repository not found')        
-        if not os.path.exists('./ESC-50'):
+        if not os.path.exists(base_path + '/ESC-50'):
             print('Clone ESC-50 from https://github.com/karolpiczak/ESC-50.git')
             raise FileNotFoundError('ESC-50 repository not found')
     else:
-        if not os.path.exists('./ast'):
+        if not os.path.exists(base_path + '/ast'):
             subprocess.run('git clone https://github.com/YuanGongND/ast')
-        if not os.path.exists('./ESC-50'):
+        if not os.path.exists(base_path + '/ESC-50'):
             subprocess.run('git clone https://github.com/karolpiczak/ESC-50.git')
-    if os.getcwd() + '/ast' not in sys.path:
-        sys.path.append(os.getcwd() + '/ast')
+    if base_path + '/ast' not in sys.path:
+        sys.path.append(base_path + '/ast')
 
     #for saving the models when training
-    save_path = os.getcwd() + '/saved'
+    save_path = base_path + '/saved'
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
     #for the pretrained model
     #TODO torch_home
-    pretrained_path = os.getcwd() + '/ast/pretrained_models'
+    pretrained_path = base_path + '/ast/pretrained_models'
     audioset_mdl_url = 'https://www.dropbox.com/s/cv4knew8mvbrnvq/audioset_0.4593.pth?dl=1'
     pretrained_model_name = 'audioset_10_10_0.4593.pth'
     if not os.path.exists(pretrained_path + '/' + pretrained_model_name):
         wget.download(url=audioset_mdl_url, out=pretrained_path + '/' + pretrained_model_name)
 
     #change working dir for ast, to find pretrained model
-    #TODO: first run in function
-    os.chdir(os.getcwd() + '/ast/src/models')
+    os.chdir(base_path + '/ast/src/models')
         #TODO from wsl_kickin, try out the unified notebook in all envs
+    return base_path + '/ESC-50'
