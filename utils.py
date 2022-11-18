@@ -57,9 +57,6 @@ def setup_env():
     print(f'Running in {running_in}')
     base_path = os.path.dirname(os.path.realpath(__file__))
 
-    #installing required packages
-    subprocess.run('pip install -r requirements.txt')
-
     #checking required repositories
     if running_in == 'local':
         if not os.path.exists(base_path + '/ast'):
