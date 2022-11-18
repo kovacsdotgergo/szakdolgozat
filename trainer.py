@@ -89,23 +89,18 @@ class Trainer():
     
     def train(self, train_loader, val_loader, optimizer=torch.optim.AdamW, lr=0.001,
               train_epochs=30, val_interval=50, save_best_model=True,
-              env_save_path='.', saved_file_name='tmp.pth'):
+              save_path='./tmp.pth'):
         """@brief   trains the model with the given parameters, saves the best model,
             saves the training data for analysis
         @param[in]  train_loader    dataloader for the training data
+        @param[in]  val_loader      dataloader for the validation data
         @param[in]  optimizer       optimizer for model training
         @param[in]  lr      learning rate for the optimizer
         @param[in]  train_epochs    duration of training
         @param[in]  val_interval    num of batches after validation is done
         @param[in]  log     bool, if logging is enabled
         @param[in]  save_best_model bool, if saving the best model is required
-        @param[in]  env_save_path   save path to save the best model
-        @param[in]  saved_file_name name of the file the best model is saved to
-        TODO
-        """
-        #TODO
-        save_dest = env_save_path + '/' + saved_file_name
-
+        @param[in]  save_path       save path to save the best model, should contain the file name as well"""
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
         # for saving the best model
         prevloss, _ = self.validate(val_loader)
@@ -113,14 +108,21 @@ class Trainer():
         self.train_stats_logger = Training_stats_logger(len(train_loader))
 
         for _ in range(train_epochs):
-            self._step_epoch(train_loader, val_loader, val_interval, minloss,
-                    save_best_model, save_dest)   
+            minloss = self._step_epoch(train_loader, val_loader, val_interval, minloss,
+                    save_best_model, save_path)   
         if self.log_message:
             print('Finished Training')
     
     def _step_epoch(self, train_loader, val_loader, val_interval, minloss,
-                    save_best_model, save_dest):
-        """TODO"""
+                    save_best_model, save_path):
+        """@brief   perfoms steps for one epoch, optimizing the model and saving the data
+        @param[in]  train_loader    dataloader for the training data
+        @param[in]  val_loader      dataloader for the training data
+        @param[in]  val_interval    interval in batch to perform validation
+        @param[in]  minloss         previous min loss for saving the best model
+        @param[in]  save_best_model bool, if the best model based on the validation loss should be saved
+        @param[in]  save_path       save path to save the best model, should contain the file name as well
+        @returns    minloss"""
         self.train_stats_logger.reset_last_train_loss()
         self.train_stats_logger.epoch_counter.reset_batch()
         self.train_stats_logger.epoch_counter.inc_epoch()
@@ -141,6 +143,7 @@ class Trainer():
                 self.train_stats_logger.reset_last_train_loss()
 
                 if val_loss < minloss and save_best_model:
+                    minloss = val_loss
                     #saving the best model
                     torch.save(
                         {
@@ -148,10 +151,14 @@ class Trainer():
                             'model': self.model.state_dict(),
                             'optimizer': self.optimizer.state_dict()
                         },
-                        save_dest)
+                        save_path)
+        return minloss
     
     def _step(self, inputs, labels):
-        """TODO"""
+        """@brief   performs on training step on the model
+        @param[in]  inputs  input data, can be batched
+        @param[in]  labels  corresponding labels for calculatin loss
+        @returns    loss.item()"""
         if self.cuda_available:
                 inputs, labels = inputs.cuda(), labels.cuda()
         self.optimizer.zero_grad()
@@ -170,8 +177,7 @@ class Trainer():
     def validate(self, val_loader):
         """@brief   validate model on the dataset wrapped by loader
         @returns    (validation loss, accuracy)
-        @param[in]  val_loader  DataLoader class wrapping the val dataset
-        """
+        @param[in]  val_loader  DataLoader class wrapping the val dataset"""
         self.model.eval()
         val_loss = 0
         total = 0
@@ -235,17 +241,24 @@ class Trainer():
     def hyperparameter_plotting(self, lrs, train_loader, val_loader,
         optimizer=torch.optim.AdamW, train_epochs=10, val_interval=10,
         log=False):
-        """TODO"""
+        """@brief   trains the model for all of the given parameters,
+                    then plots the statistics for all of the trainings
+        @param[in]  lrs     list or arrays of learning rates
+        @param[in]  train_loader    dataloader for training data
+        @param[in]  val_loader      dataloader for validation data
+        @param[in]  optimizer       optimizer for model training
+        @param[in]  train_epochs    number of epochs for each training
+        @param[in]  val_interval    num of batches after validation is done
+        @param[in]  log             bool, if logging messages should be displayed
+        @returns    list of data for each training"""
         hyperparam_data = []
         model_dict = copy.deepcopy(self.model.state_dict())
-        print(model_dict['module.mlp_head.1.weight'])
         for lr in lrs:
             self.train(train_loader, val_loader, optimizer=optimizer, lr=lr,
                 train_epochs=train_epochs, val_interval=val_interval, log=log,
                 save_best_model=False, log_train_data=True)
+            #TODO if append is enough without copy
             hyperparam_data.append((lr, self.last_train_data))
             self.plot_train_proc(f'lr = {lr}')
             self.model.load_state_dict(model_dict)
-            print(model_dict['module.mlp_head.1.weight'])
-            
         return hyperparam_data

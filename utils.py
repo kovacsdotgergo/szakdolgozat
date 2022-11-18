@@ -86,7 +86,6 @@ def setup_env():
         os.mkdir(save_path)
 
     #for the pretrained model
-    #TODO torch_home
     pretrained_path = base_path + '/ast/pretrained_models'
     audioset_mdl_url = 'https://www.dropbox.com/s/cv4knew8mvbrnvq/audioset_0.4593.pth?dl=1'
     pretrained_model_name = 'audioset_10_10_0.4593.pth'
@@ -96,5 +95,4 @@ def setup_env():
     #change working dir for ast, to find pretrained model
     workspace_path = base_path + '/ast/src/models'
     os.chdir(workspace_path)
-        #TODO from wsl_kickin, try out the unified notebook in all envs
     return esc_path, save_path, workspace_path

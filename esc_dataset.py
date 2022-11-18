@@ -53,8 +53,9 @@ class ESCdataset(Dataset):
         alldata = pd.read_csv(path + "/meta/esc50.csv").to_numpy()
         #filename and the index/code of the category
         self.csv_data = alldata[:, [0, 2]]
-        #dictionary for the indexes and category names
-        self.label_dict = dict(alldata[:, [2, 3]])
+        #dictionary, then list for the indexes and category names
+        label_dict = dict(alldata[:, [2, 3]])
+        self.label_list = [i for _, i in sorted(label_dict.items())]
 
         #all files should have the same sample rate, saving based on the first file
         _, original_sr = torchaudio.load(
@@ -82,7 +83,9 @@ class ESCdataset(Dataset):
         """@returns label based on the index"""
         return self.csv_data[item, 1]
     
-    #TODO: function for returning class name from dict given the index
+    def get_class_name(self, index:int):
+        """@returns class name based on the index"""
+        return self.label_list[index]
 
     def _get_data(self, item: int):
         """@returns the transformed data based on the index
