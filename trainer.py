@@ -200,6 +200,19 @@ class Trainer():
         _, test_acc = self.validate(test_loader)        
         return test_acc
 
+    def inference(self, input, ret_index=True):
+        """@brief   caclulates the input for the given input
+        @param[in]  input   input tensor
+        @param[in]  ret_index   bool, if index of the highest class should be returned
+        @returns    the output tensor or highest index if ret_index is true"""
+        #for unbatched input the model accepts 3D
+        if 2 == input.dim():
+            input = input.unsqueeze(dim=0)
+        with torch.no_grad():
+            with torch.cuda.amp.autocast():
+                out = self.model.forward(input)
+        return torch.argmax(out, dim=1) if ret_index else out
+
     def plot_train_proc(self, title):
         """@brief   plots validation and running data of the last training
         @param[in]  title   title of the plotted figure"""

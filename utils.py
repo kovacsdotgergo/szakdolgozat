@@ -48,6 +48,8 @@ def calculate_esc_mean_and_std(esc_path, n_fft=1024, num_mel=128, hop_len=256, a
 
 
 def setup_env():
+    """@brief   setup for environment before running notebook
+    @returns    (esc_path, save_path, workspace_path)"""
     if 'google.colab' in sys.modules:
         running_in = 'colab'
     elif os.environ.get('KAGGLE_KERNEL_RUN_TYPE') is not None:
@@ -56,19 +58,20 @@ def setup_env():
         running_in = 'local'
     print(f'Running in {running_in}')
     base_path = os.path.dirname(os.path.realpath(__file__))
+    esc_path = base_path + '/ESC-50'
 
     #checking required repositories
     if running_in == 'local':
         if not os.path.exists(base_path + '/ast'):
             print('Clone AST from https://github.com/YuanGongND/ast')
             raise FileNotFoundError('AST repository not found')        
-        if not os.path.exists(base_path + '/ESC-50'):
+        if not os.path.exists(esc_path):
             print('Clone ESC-50 from https://github.com/karolpiczak/ESC-50.git')
             raise FileNotFoundError('ESC-50 repository not found')
     else:
         if not os.path.exists(base_path + '/ast'):
             subprocess.run(['git', 'clone', 'https://github.com/YuanGongND/ast'])
-        if not os.path.exists(base_path + '/ESC-50'):
+        if not os.path.exists(esc_path):
             subprocess.run(['git', 'clone', 'https://github.com/karolpiczak/ESC-50.git'])
     if base_path + '/ast' not in sys.path:
         sys.path.append(base_path + '/ast')
@@ -87,6 +90,7 @@ def setup_env():
         wget.download(url=audioset_mdl_url, out=pretrained_path + '/' + pretrained_model_name)
 
     #change working dir for ast, to find pretrained model
-    os.chdir(base_path + '/ast/src/models')
+    workspace_path = base_path + '/ast/src/models'
+    os.chdir(workspace_path)
         #TODO from wsl_kickin, try out the unified notebook in all envs
-    return base_path + '/ESC-50'
+    return esc_path, save_path, workspace_path
