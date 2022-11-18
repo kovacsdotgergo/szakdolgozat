@@ -76,6 +76,10 @@ def setup_env():
     if base_path + '/ast' not in sys.path:
         sys.path.append(base_path + '/ast')
 
+    #due to changing the working dir
+    if base_path not in sys.path:
+        sys.path.append(base_path)
+
     #for saving the models when training
     save_path = base_path + '/saved'
     if not os.path.exists(save_path):
