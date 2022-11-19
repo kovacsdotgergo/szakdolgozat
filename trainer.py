@@ -261,8 +261,8 @@ class Trainer():
         model_dict = copy.deepcopy(self.model.state_dict())
         for lr in lrs:
             self.train(train_loader, val_loader, optimizer=optimizer, lr=lr,
-                train_epochs=train_epochs, val_interval=val_interval, log=log,
-                save_best_model=False, log_train_data=True)
+                train_epochs=train_epochs, val_interval=val_interval,
+                save_best_model=False)
             #TODO if append is enough without copy
             hyperparam_data.append((lr, self.last_train_data))
             self.plot_train_proc(f'lr = {lr}')
