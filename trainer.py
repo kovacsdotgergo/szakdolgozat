@@ -263,8 +263,7 @@ class Trainer():
             self.train(train_loader, val_loader, optimizer=optimizer, lr=lr,
                 train_epochs=train_epochs, val_interval=val_interval,
                 save_best_model=False)
-            #TODO if append is enough without copy
-            hyperparam_data.append((lr, self.last_train_data))
+            hyperparam_data.append((lr, copy.deepcopy(self.train_stats_logger.get_last_train_stats())))
             self.plot_train_proc(f'lr = {lr}')
             self.model.load_state_dict(model_dict)
         return hyperparam_data
