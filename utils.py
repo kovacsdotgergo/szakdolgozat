@@ -95,4 +95,5 @@ def setup_env():
     #change working dir for ast, to find pretrained model
     workspace_path = base_path + '/ast/src/models'
     os.chdir(workspace_path)
-    return esc_path, save_path, workspace_path
+    have_cuda = torch.cuda.is_available()
+    return esc_path, save_path, workspace_path, have_cuda
