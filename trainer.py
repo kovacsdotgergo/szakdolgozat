@@ -125,7 +125,6 @@ class Trainer():
         @returns    minloss"""
         self.train_stats_logger.reset_last_train_loss()
         self.train_stats_logger.epoch_counter.reset_batch()
-        self.train_stats_logger.epoch_counter.inc_epoch()
 
         for inputs, labels in train_loader:
             loss = self._step(inputs, labels)
@@ -149,6 +148,7 @@ class Trainer():
                             'epoch': self.train_stats_logger.epoch_counter.get_epoch_float(),
                             'model': copy.deepcopy(self.model.state_dict()),
                             'optimizer': copy.deepcopy(self.optimizer.state_dict())}
+        self.train_stats_logger.epoch_counter.inc_epoch()
         if save_best_model:
             torch.save(best_model_dict, save_path)
         return minloss
