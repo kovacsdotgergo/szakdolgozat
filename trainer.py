@@ -145,13 +145,12 @@ class Trainer():
                 if val_loss < minloss and save_best_model:
                     minloss = val_loss
                     #saving the best model
-                    torch.save(
-                        {
+                    best_model_dict = {
                             'epoch': self.train_stats_logger.epoch_counter.get_epoch_float(),
-                            'model': self.model.state_dict(),
-                            'optimizer': self.optimizer.state_dict()
-                        },
-                        save_path)
+                            'model': copy.deepcopy(self.model.state_dict()),
+                            'optimizer': copy.deepcopy(self.optimizer.state_dict())}
+        if save_best_model:
+            torch.save(best_model_dict, save_path)
         return minloss
     
     def _step(self, inputs, labels):
@@ -173,7 +172,6 @@ class Trainer():
         self.optimizer.step()
         return loss.item()
 
-    
     def validate(self, val_loader):
         """@brief   validate model on the dataset wrapped by loader
         @returns    (validation loss, accuracy)
@@ -205,6 +203,13 @@ class Trainer():
         @param[in] test_loader DataLoader class wrapping the test dataset"""
         _, test_acc = self.validate(test_loader)        
         return test_acc
+
+    def load_model(self, load_path):
+        """TODO"""
+        saved_dict = torch.load(load_path)
+        epoch = saved_dict['epoch']
+        print(f'Loading model from {epoch}.epoch')
+        self.model.load_state_dict(saved_dict['model'])
 
     def inference(self, input, ret_index=True):
         """@brief   caclulates the input for the given input
