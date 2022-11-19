@@ -105,23 +105,25 @@ class Trainer():
         # for saving the best model
         prevloss, _ = self.validate(val_loader)
         minloss = prevloss
+        best_model_dict = None
         self.train_stats_logger = Training_stats_logger(len(train_loader))
 
         for _ in range(train_epochs):
-            minloss = self._step_epoch(train_loader, val_loader, val_interval, minloss,
-                    save_best_model, save_path)   
+            minloss, best_model_dict = self._step_epoch(train_loader, val_loader, val_interval, minloss,
+                    best_model_dict)
+        if save_best_model and best_model_dict is not None:
+            torch.save(best_model_dict, save_path)       
         if self.log_message:
             print('Finished Training')
     
     def _step_epoch(self, train_loader, val_loader, val_interval, minloss,
-                    save_best_model, save_path):
+                    best_model_dict):
         """@brief   perfoms steps for one epoch, optimizing the model and saving the data
         @param[in]  train_loader    dataloader for the training data
         @param[in]  val_loader      dataloader for the training data
         @param[in]  val_interval    interval in batch to perform validation
         @param[in]  minloss         previous min loss for saving the best model
-        @param[in]  save_best_model bool, if the best model based on the validation loss should be saved
-        @param[in]  save_path       save path to save the best model, should contain the file name as well
+        @param[in]  best_model_dict dictionary conatining the data to be saved
         @returns    minloss"""
         self.train_stats_logger.reset_last_train_loss()
         self.train_stats_logger.epoch_counter.reset_batch()
@@ -141,7 +143,7 @@ class Trainer():
                 self.train_stats_logger.save_last_train_stats(val_loss, val_accuracy)
                 self.train_stats_logger.reset_last_train_loss()
 
-                if val_loss < minloss and save_best_model:
+                if val_loss < minloss:
                     minloss = val_loss
                     #saving the best model
                     best_model_dict = {
@@ -149,9 +151,7 @@ class Trainer():
                             'model': copy.deepcopy(self.model.state_dict()),
                             'optimizer': copy.deepcopy(self.optimizer.state_dict())}
         self.train_stats_logger.epoch_counter.inc_epoch()
-        if save_best_model:
-            torch.save(best_model_dict, save_path)
-        return minloss
+        return minloss, best_model_dict
     
     def _step(self, inputs, labels):
         """@brief   performs on training step on the model
