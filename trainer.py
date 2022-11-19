@@ -216,6 +216,7 @@ class Trainer():
         @param[in]  input   input tensor
         @param[in]  ret_index   bool, if index of the highest class should be returned
         @returns    the output tensor or highest index if ret_index is true"""
+        self.model.eval()
         #for unbatched input the model accepts 3D
         if 2 == input.dim():
             input = input.unsqueeze(dim=0)
