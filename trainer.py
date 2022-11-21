@@ -263,6 +263,6 @@ class Trainer():
                 train_epochs=train_epochs, val_interval=val_interval,
                 save_best_model=False)
             hyperparam_data.append((lr, copy.deepcopy(self.train_stats_logger.get_last_train_stats())))
-            self.plot_train_proc(f'lr = {lr}')
+            self.plot_train_proc(f'lépésköz (learning rate) = {lr}')
             self.model.load_state_dict(model_dict)
         return hyperparam_data
