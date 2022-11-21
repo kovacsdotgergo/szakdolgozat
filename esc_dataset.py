@@ -154,8 +154,7 @@ class ESCdataset(Dataset):
     #TODO: classes for augmentation and calling them with help of nn.Sequential
 
     def inject_noise(self, data, max_noise_factor):
-        """@brief   adds white noise with random standard
-                    deviation to the data
+        """@brief   adds white noise with random standard deviation to the data
         @returns    the augmented data
         @param[in]  max_noise_factor    max of the standard deviation
         """

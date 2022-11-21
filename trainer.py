@@ -134,8 +134,7 @@ class Trainer():
             self.train_stats_logger.add_train_loss(loss)
             self.train_stats_logger.epoch_counter.inc_batch()
 
-            if 0 == self.train_stats_logger.epoch_counter.get_batch() % val_interval:
-                # printing statistics
+            if 0 == (self.train_stats_logger.epoch_counter.get_batch() % val_interval):
                 val_loss, val_accuracy = self.validate(val_loader)
 
                 if self.log_message:
@@ -145,7 +144,7 @@ class Trainer():
 
                 if val_loss < minloss:
                     minloss = val_loss
-                    #saving the best model
+                    #for saving the best model
                     best_model_dict = {
                             'epoch': self.train_stats_logger.epoch_counter.get_epoch_float(),
                             'model': copy.deepcopy(self.model.state_dict()),
@@ -239,8 +238,8 @@ class Trainer():
         
         ax_loss.set_title(title)
         ax_loss.set_xlabel('epoch')
-        ax_loss.set_ylabel('loss', color='g')
-        ax_acc.set_ylabel('accuracy', color='b')
+        ax_loss.set_ylabel('hiba', color='g')#loss
+        ax_acc.set_ylabel('pontosság', color='b')#accuracy
         plt.grid()
         plt.show()
                 
