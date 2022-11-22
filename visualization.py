@@ -44,7 +44,7 @@ def plot_waveform(wave_dataset, index):
     @param[in]  index       index of the sample in the dataset"""
     wave, _ = wave_dataset[index]
     plt.figure()
-    plt.plot(wave, [i/wave_dataset.sample_rate for i in range(len(wave))])
+    plt.plot([i/wave_dataset.sample_rate for i in range(len(wave))], wave)
     plt.xlabel('Idő [s]')
     plt.ylabel('Amplitúdó')
     plt.title('Hullámforma')
