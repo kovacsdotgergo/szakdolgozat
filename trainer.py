@@ -2,6 +2,7 @@ import copy
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import visualization
 
 class Epoch_counter():
     def __init__(self, max_batch):
@@ -223,25 +224,6 @@ class Trainer():
             with torch.cuda.amp.autocast():
                 out = self.model.forward(input)
         return torch.argmax(out, dim=1) if ret_index else out
-
-    def plot_train_proc(self, title):
-        """@brief   plots validation and running data of the last training
-        @param[in]  title   title of the plotted figure"""
-        last_train_stats = self.train_stats_logger.get_last_train_stats()
-        epochs = last_train_stats['epoch']
-
-        fig, ax_loss = plt.subplots()
-        ax_acc = ax_loss.twinx()
-        ax_loss.plot(epochs, last_train_stats['val_loss'])
-        ax_loss.plot(epochs, last_train_stats['avg_train_loss'])
-        ax_acc.plot(epochs, last_train_stats['val_acc'])
-        
-        ax_loss.set_title(title)
-        ax_loss.set_xlabel('epoch')
-        ax_loss.set_ylabel('hiba', color='g')#loss
-        ax_acc.set_ylabel('pontosság', color='b')#accuracy
-        plt.grid()
-        plt.show()
                 
     def hyperparameter_plotting(self, lrs, train_loader, val_loader,
         optimizer=torch.optim.AdamW, train_epochs=10, val_interval=10,
@@ -263,6 +245,7 @@ class Trainer():
                 train_epochs=train_epochs, val_interval=val_interval,
                 save_best_model=False)
             hyperparam_data.append((lr, copy.deepcopy(self.train_stats_logger.get_last_train_stats())))
-            self.plot_train_proc(f'lépésköz (learning rate) = {lr}')
+            visualization.plot_train_proc(self.train_stats_logger.get_last_train_stats(), 
+                f'lépésköz (learning rate) = {lr}')
             self.model.load_state_dict(model_dict)
         return hyperparam_data
