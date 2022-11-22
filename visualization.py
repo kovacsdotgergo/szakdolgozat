@@ -28,7 +28,7 @@ def plot_spectrogram(mel_dataset, index):
     spect, _ = mel_dataset[index]
     if mel_dataset.use_kaldi:
         spect = spect.transpose(0, 1)
-    plt.figure(1)
+    plt.figure()
     librosa.display.specshow(
         spect.detach().numpy(), cmap='magma', sr=mel_dataset.sample_rate,
         hop_length=mel_dataset.hop_length, x_axis='time', y_axis='mel')
@@ -43,10 +43,9 @@ def plot_waveform(wave_dataset, index):
     @param[in]  wave_dataset    dataset containing the waveforms
     @param[in]  index       index of the sample in the dataset"""
     wave, _ = wave_dataset[index]
-    plt.figure(1)
-    plt.plot(wave)
+    plt.figure()
+    plt.plot(wave, [i/wave_dataset.sample_rate for i in range(len(wave))])
     plt.xlabel('Idő [s]')
-    plt.xlim(right=(wave.size(dim=0)/wave_dataset.sample_rate))
     plt.ylabel('Amplitúdó')
     plt.title('Hullámforma')
 
