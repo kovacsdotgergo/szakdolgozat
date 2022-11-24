@@ -19,7 +19,7 @@ DATASET_RAW_MEAN = -0.00014325266238301992
 DATASET_RAW_STD = 0.12926168739795685
 DATASET_MEAN = -51.28519821166992
 DATASET_STD = 46.351680755615234
-
+NUM_FOLD = 5
 
 class ESCdataset(Dataset):
     def __init__(self, path, folds=None, n_fft=1024, hop_length=512, n_mels=128,
@@ -52,13 +52,13 @@ class ESCdataset(Dataset):
 
         #reading the csv file for creating labels
         alldata = pd.read_csv(path + "/meta/esc50.csv").to_numpy()
-        #filename and the index/code of the category
-        self.csv_data = alldata[:, [0, 2]]
+        #filename, the index/code of the category and the fold
+        self.csv_data = alldata[:, [0, 2, 1]]
         #selecting the required folds
         if folds is not None:
             fold_index = np.isin(alldata[:, 1], folds)
             self.csv_data = self.csv_data[fold_index]
-        #dictionary, then list for the indexes and category names
+        #dictionary, then list for the class indeces and category names
         label_dict = dict(alldata[:, [2, 3]])
         self.label_list = [i for _, i in sorted(label_dict.items())]
 
@@ -91,6 +91,10 @@ class ESCdataset(Dataset):
     def get_class_name(self, index:int):
         """@returns class name based on the index"""
         return self.label_list[index]
+
+    def get_fold_indeces(self, fold):
+        """@returns indeces of the given fold"""
+        return np.nonzero(np.isin(self.csv_data[:, 2], fold))
 
     def _get_data(self, item: int):
         """@returns the transformed data based on the index
