@@ -45,9 +45,10 @@ def plot_waveform(wave_dataset, index):
     @param[in]  index       index of the sample in the dataset"""
     wave, _ = wave_dataset[index]
     plt.figure()
-    plt.plot([i/wave_dataset.sample_rate for i in range(len(wave))], wave)
+    plt.plot([i/wave_dataset.sample_rate for i in range(len(wave))],
+            wave, color='darkviolet')
     plt.xlabel('Idő [s]')
-    plt.ylabel('Amplitúdó')
+    plt.ylabel('Amplitúdó', color='darkviolet')
     plt.title('Hullámforma')
 
 def plot_train_proc(last_train_stats, title):
@@ -57,15 +58,14 @@ def plot_train_proc(last_train_stats, title):
 
     _, ax_loss = plt.subplots()
     ax_acc = ax_loss.twinx()
-    ax_loss.plot(epochs, last_train_stats['val_loss'])
-    ax_loss.plot(epochs, last_train_stats['avg_train_loss'])
-    ax_acc.plot(epochs, last_train_stats['val_acc'])
+    ax_loss.plot(epochs, last_train_stats['val_loss'], color='darkorange')
+    ax_loss.plot(epochs, last_train_stats['avg_train_loss'], color='tomato')
+    ax_acc.plot(epochs, last_train_stats['val_acc'], color='darkviolet')
     
     ax_loss.set_title(title)
     ax_loss.set_xlabel('Epoch')
-    ax_loss.set_ylabel('Hiba', color='g')#loss
-    ax_acc.set_ylabel('Pontosság', color='b')#accuracy
-    plt.grid()
+    ax_loss.set_ylabel('Hiba', color='tomato')#loss
+    ax_acc.set_ylabel('Pontosság', color='darkviolet')#accuracy
     plt.show()
 
 def plot_confusion_matrix(classes_list, start_index, test_loader, audio_model, have_cuda):
