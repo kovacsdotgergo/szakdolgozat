@@ -87,7 +87,8 @@ def plot_confusion_matrix(classes_list, start_index, test_loader, audio_model, h
             y_pred.extend(predictions.data.cpu())
     # Build confusion matrix
     cf_matrix = confusion_matrix(y_true, y_pred, normalize='pred')
-    df_cm = pd.DataFrame(cf_matrix, index = [i for i in classes_list[start_index:]],
+    df_cm = pd.DataFrame(cf_matrix[start_index:, start_index:],
+                        index = [i for i in classes_list[start_index:]],
                         columns = [i for i in classes_list[start_index:]])
     plt.figure(figsize = (20, 12) if start_index < 35 else (8, 4))
     sn.heatmap(df_cm, annot=True)
