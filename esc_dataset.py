@@ -22,20 +22,21 @@ DATASET_STD = 46.351680755615234
 
 
 class ESCdataset(Dataset):
-    def __init__(self, path, n_fft=1024, hop_length=512, n_mels=128,
-                augment=True, pitch_shift=False, normalize=True,
-                log_mel=True, use_kaldi=True, target_len = None,
-                resample_rate=None) -> None:
+    def __init__(self, path, folds=None, n_fft=1024, hop_length=512, n_mels=128,
+                augment=True, pitch_shift=False, normalize=True, log_mel=True,
+                use_kaldi=True, target_len=None, resample_rate=None) -> None:
         """
         @brief  ESC-50 dataset class
-
+        @param[in]  path        path to the ESC-50 dataset folder
+        @param[in]  folds       folds out of 5 possible
+        @param[in]  n_fft, hop_length, n_mels parameters for logarithmic Mel spectogram
         @param[in]  augment     bool, should data augmentation be used
         @param[in]  pitch_shift bool, should pitch shift augmentation be used
         @param[in]  normalize   bool, should normalization be used
         @param[in]  log_mel     bool, should logmel transformation be used
         @param[in]  use_kaldi   bool, should kaldi.fbank be used for logmel
         @param[in]  target_len  int, target len for padding
-        @param[in]  n_fft, hop_length, n_mels parameters for logarithmic Mel spectogram
+        @param[in]  resample_rate   new sample rate
         """
         super().__init__()
         self.path = path
@@ -53,6 +54,10 @@ class ESCdataset(Dataset):
         alldata = pd.read_csv(path + "/meta/esc50.csv").to_numpy()
         #filename and the index/code of the category
         self.csv_data = alldata[:, [0, 2]]
+        #selecting the required folds
+        if folds is not None:
+            fold_index = np.isin(alldata[:, 1], folds)
+            self.csv_data = self.csv_data[fold_index]
         #dictionary, then list for the indexes and category names
         label_dict = dict(alldata[:, [2, 3]])
         self.label_list = [i for _, i in sorted(label_dict.items())]
