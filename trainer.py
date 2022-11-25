@@ -64,10 +64,10 @@ class Training_stats_logger():
         return self.last_train_stats
 
     def print_log_message(self, val_loss, val_acc):
-        print(f"Avg train loss at {self.epoch_counter.get_epoch():.3f}.epoch, "
+        print(f"Avg train loss at {self.epoch_counter.get_epoch()}.epoch, "
             f"{self.epoch_counter.get_batch()}. batch:\t"
             f"{self.get_avg_loss():.3f}\t\t"
-            f"Val_loss at {self.epoch_counter.get_epoch():.3f}.epoch, "
+            f"Val_loss at {self.epoch_counter.get_epoch()}.epoch, "
             f"{self.epoch_counter.get_batch()}.batch:\t"
             f"{val_loss:.3f}\tacc: {val_acc:.3f}")
 
@@ -246,6 +246,6 @@ class Trainer():
                 save_best_model=False)
             hyperparam_data.append((lr, copy.deepcopy(self.train_stats_logger.get_last_train_stats())))
             visualization.plot_train_proc(self.train_stats_logger.get_last_train_stats(), 
-                f'lépésköz (learning rate) = {lr:.4f}')
+                f'lépésköz (learning rate) = {lr}')
             self.model.load_state_dict(model_dict)
         return hyperparam_data

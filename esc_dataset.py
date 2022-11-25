@@ -12,6 +12,8 @@ import pandas as pd
 MAX_NOISE_FACTOR = 0.03
 MAX_SHIFT = 0.5
 MAX_PITCH_SHIFT_STEP = 6
+MAX_TIME_MASK = 50
+MAX_FREQ_MASK = 20
 #constants for normalization, calculated on the whole dataset
 DATASET_KALDI_MEAN = -6.773274898529053
 DATASET_KALDI_STD = 3.796977996826172
@@ -23,7 +25,7 @@ NUM_FOLD = 5
 
 class ESCdataset(Dataset):
     def __init__(self, path, folds=None, n_fft=1024, hop_length=512, n_mels=128,
-                augment=True, pitch_shift=False, normalize=True, log_mel=True,
+                augment=True, pitch_shift=False, mask=True, normalize=True, log_mel=True,
                 use_kaldi=True, target_len=None, resample_rate=None) -> None:
         """
         @brief  ESC-50 dataset class
@@ -32,6 +34,7 @@ class ESCdataset(Dataset):
         @param[in]  n_fft, hop_length, n_mels parameters for logarithmic Mel spectogram
         @param[in]  augment     bool, should data augmentation be used
         @param[in]  pitch_shift bool, should pitch shift augmentation be used
+        @param[in]  mask        bool, should time and frequency masking be used
         @param[in]  normalize   bool, should normalization be used
         @param[in]  log_mel     bool, should logmel transformation be used
         @param[in]  use_kaldi   bool, should kaldi.fbank be used for logmel
@@ -45,6 +48,7 @@ class ESCdataset(Dataset):
         self.n_mels = n_mels
         self.augment = augment
         self.pitch_shift = pitch_shift
+        self.mask = mask
         self.normalize = normalize
         self.log_mel = log_mel
         self.use_kaldi = use_kaldi
@@ -71,6 +75,8 @@ class ESCdataset(Dataset):
         self.Resample = self._create_resample(original_sr, self.sample_rate)
         self.LogMelSpect = self._create_log_mel_spect()
         self.Normalize = self._create_normalize()
+        self.FreqMask = self._create_freq_masker(MAX_FREQ_MASK)
+        self.TimeMask = self._create_time_masker(MAX_TIME_MASK)
 
     def __len__(self) -> int:
         """@returns the length of the dataset"""
@@ -116,6 +122,13 @@ class ESCdataset(Dataset):
                 data = data.unsqueeze(0)
             else:
                 data = self.LogMelSpect(data)
+        if self.augment and self.log_mel and self.use_kaldi and self.mask:
+            if self.use_kaldi:
+                data = data.transpose(1, 2)
+            data = self.FreqMask(data)
+            data = self.TimeMask(data)
+            if self.use_kaldi:
+                data = data.transpose(1, 2)
         if self.normalize and self.log_mel:
             data = self.Normalize(data)
         elif self.normalize:
@@ -200,8 +213,11 @@ class ESCdataset(Dataset):
             augmented_data[0, shift:] = 0
         return augmented_data
 
-    # TODO def _create_freq_masker(self, )
-    # TODO def _create_time_masker(self, )
+    def _create_freq_masker(self, freq_mask_param):
+        return torchaudio.transforms.FrequencyMasking(freq_mask_param)
+    
+    def _create_time_masker(self, time_mask_param):
+        return torchaudio.transforms.TimeMasking(time_mask_param)
 
     def standardize(self, data):
         """@brief   dividing the data with the maximum value"""
@@ -209,19 +225,15 @@ class ESCdataset(Dataset):
         return data/max
 
     def _create_normalize(self):
-        """
-        @brief  returns an instance of torchvision.transforms.Normalize
-                with the previously calculated mean and std 
-        """
+        """@brief  returns an instance of torchvision.transforms.Normalize
+                with the previously calculated mean and std"""
         return Normalize(DATASET_KALDI_MEAN if self.use_kaldi else DATASET_MEAN,
                         2 * DATASET_KALDI_STD if self.use_kaldi else DATASET_STD)
 
     def transform(self, data, shift_max, max_step,
                     max_noise_factor, pitch_shift=False):
-        """
-        @brief      applies time shift, pitch shift, noise injection
-        @returns    the augmented data
-        """
+        """@brief      applies time shift, pitch shift, noise injection
+        @returns    the augmented data"""
         #data = standardize(data)
         data = self.time_shift_rand(data, shift_max)
         if pitch_shift:
