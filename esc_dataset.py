@@ -200,6 +200,9 @@ class ESCdataset(Dataset):
             augmented_data[0, shift:] = 0
         return augmented_data
 
+    # TODO def _create_freq_masker(self, )
+    # TODO def _create_time_masker(self, )
+
     def standardize(self, data):
         """@brief   dividing the data with the maximum value"""
         max = torch.max(data)

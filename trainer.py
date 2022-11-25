@@ -64,10 +64,10 @@ class Training_stats_logger():
         return self.last_train_stats
 
     def print_log_message(self, val_loss, val_acc):
-        print(f"Avg train loss at {self.epoch_counter.get_epoch()}.epoch, "
+        print(f"Avg train loss at {self.epoch_counter.get_epoch():.3f}.epoch, "
             f"{self.epoch_counter.get_batch()}. batch:\t"
             f"{self.get_avg_loss():.3f}\t\t"
-            f"Val_loss at {self.epoch_counter.get_epoch()}.epoch, "
+            f"Val_loss at {self.epoch_counter.get_epoch():.3f}.epoch, "
             f"{self.epoch_counter.get_batch()}.batch:\t"
             f"{val_loss:.3f}\tacc: {val_acc:.3f}")
 
@@ -104,28 +104,28 @@ class Trainer():
         @param[in]  save_path       save path to save the best model, should contain the file name as well"""
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
         # for saving the best model
-        prevloss, _ = self.validate(val_loader)
-        minloss = prevloss
+        _, prev_acc = self.validate(val_loader)
+        maxacc = prev_acc
         best_model_dict = None
         self.train_stats_logger = Training_stats_logger(len(train_loader))
 
         for _ in range(train_epochs):
-            minloss, best_model_dict = self._step_epoch(train_loader, val_loader, val_interval, minloss,
+            maxacc, best_model_dict = self._step_epoch(train_loader, val_loader, val_interval, maxacc,
                     best_model_dict)
         if save_best_model and best_model_dict is not None:
             torch.save(best_model_dict, save_path)       
         if self.log_message:
             print('Finished Training')
     
-    def _step_epoch(self, train_loader, val_loader, val_interval, minloss,
+    def _step_epoch(self, train_loader, val_loader, val_interval, maxacc,
                     best_model_dict):
         """@brief   perfoms steps for one epoch, optimizing the model and saving the data
         @param[in]  train_loader    dataloader for the training data
         @param[in]  val_loader      dataloader for the training data
         @param[in]  val_interval    interval in batch to perform validation
-        @param[in]  minloss         previous min loss for saving the best model
+        @param[in]  maxacc          previous max accuracy for saving the best model
         @param[in]  best_model_dict dictionary conatining the data to be saved
-        @returns    minloss"""
+        @returns    maxacc"""
         self.train_stats_logger.reset_last_train_loss()
         self.train_stats_logger.epoch_counter.reset_batch()
 
@@ -143,15 +143,15 @@ class Trainer():
                 self.train_stats_logger.save_last_train_stats(val_loss, val_accuracy)
                 self.train_stats_logger.reset_last_train_loss()
 
-                if val_loss < minloss:
-                    minloss = val_loss
+                if val_accuracy > maxacc:
+                    maxacc = val_accuracy
                     #for saving the best model
                     best_model_dict = {
                             'epoch': self.train_stats_logger.epoch_counter.get_epoch_float(),
                             'model': copy.deepcopy(self.model.state_dict()),
                             'optimizer': copy.deepcopy(self.optimizer.state_dict())}
         self.train_stats_logger.epoch_counter.inc_epoch()
-        return minloss, best_model_dict
+        return maxacc, best_model_dict
     
     def _step(self, inputs, labels):
         """@brief   performs on training step on the model
@@ -246,6 +246,6 @@ class Trainer():
                 save_best_model=False)
             hyperparam_data.append((lr, copy.deepcopy(self.train_stats_logger.get_last_train_stats())))
             visualization.plot_train_proc(self.train_stats_logger.get_last_train_stats(), 
-                f'lépésköz (learning rate) = {lr}')
+                f'lépésköz (learning rate) = {lr:.4f}')
             self.model.load_state_dict(model_dict)
         return hyperparam_data
