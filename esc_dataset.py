@@ -122,7 +122,7 @@ class ESCdataset(Dataset):
                 data = data.unsqueeze(0)
             else:
                 data = self.LogMelSpect(data)
-        if self.augment and self.log_mel and self.use_kaldi and self.mask:
+        if self.augment and self.log_mel and self.mask:
             if self.use_kaldi:
                 data = data.transpose(1, 2)
             data = self.FreqMask(data)
