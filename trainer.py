@@ -143,7 +143,7 @@ class Trainer():
                 self.train_stats_logger.save_last_train_stats(val_loss, val_accuracy)
                 self.train_stats_logger.reset_last_train_loss()
 
-                if val_accuracy > maxacc:
+                if val_accuracy > maxacc - 1e-8:
                     maxacc = val_accuracy
                     #for saving the best model
                     best_model_dict = {

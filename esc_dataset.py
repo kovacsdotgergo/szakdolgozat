@@ -154,7 +154,7 @@ class ESCdataset(Dataset):
         return data
 
     def _create_log_mel_spect(self):
-        """@returns an instance of nn.Sequential(transforms.MelSpectogram,
+        """@returns an instance of nn.Sequential(transforms.MelSpectrogram,
                                                 transforms.AmplitudeToDB)
         """
         to_melspect = torchaudio.transforms.MelSpectrogram(
