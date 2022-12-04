@@ -47,7 +47,7 @@ class conv2d_v1(nn.Module):
         x = self.flatten(x)
         return self.mlp(x)
 
-class cnn2d_v2(nn.Module):
+class Cnn2d_v2(nn.Module):
     """TODO class for residual deep cnn with batchnorm"""
     def __init__(self):
         super(cnn2d_v2, self).__init__()
@@ -65,9 +65,7 @@ class cnn2d_v2(nn.Module):
             input = input.unsqueeze(dim=1)
         input = self.cnn1(input)
         input = self.pool1(input)
-        print(input.size())
         input = self.flatten(input)
-        print(input.size())
         input = self.mlp(input)
         return input
 
