@@ -59,8 +59,10 @@ class cnn2d_v2(nn.Module):
     
     def forward(self, input: torch.tensor) -> torch.tensor:
         #unsqueeze if there is no batch dim
-        if 3 == input.dim():
-            input = input.unsqueeze(dim=0)
+        if 2 == input.dim():
+            input = input.unsqueeze(dim=0).unsqueeze(dim=0)
+        else:
+            input = input.unsqueeze(dim=1)
         input = self.cnn1(input)
         input = self.pool1(input)
         print(input.size())
@@ -106,4 +108,3 @@ class Cnn_block(nn.Module):
         output = cnn_input + input
         output = self.relu(output)
         return output
-        
