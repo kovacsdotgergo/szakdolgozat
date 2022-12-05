@@ -299,7 +299,7 @@ class Cnn_res_2d(nn.Module):
             ('conv42', Res_block(layer_num=2, in_channels=256, out_channels=256,
                 in_h=14, in_w=4, batch_norm=True)),
             ('conv43', Res_block(layer_num=2, in_channels=256, out_channels=256,
-                in_h=14, in_w=4, batch_norm=True))
+                in_h=14, in_w=4, batch_norm=True)),
             ('pool51', Res_block(layer_num=2, in_channels=256, out_channels=512,
                 in_h=14, in_w=4, pool_first=True, batch_norm=True)),#->14*4
             ('conv52', Res_block(layer_num=2, in_channels=512, out_channels=512,
