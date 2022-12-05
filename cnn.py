@@ -59,6 +59,7 @@ class Cnn_res_2d(nn.Module):
         v5 = 4
         v6 = 5
         v7 = 6
+        v8 = 7
 
     def __init__(self, version):
         """@brief   constructor
@@ -271,6 +272,44 @@ class Cnn_res_2d(nn.Module):
         ])))
         self.mlps.append(torch.nn.Linear(in_features=512*7*2, 
                                          out_features=50))
+        #v8
+        self.cnns.append(nn.Sequential(collections.OrderedDict([
+            ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
+                kernel_size=5, padding=2, stride=2)),
+            ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
+                kernel_size=3, stride=2, padding=1)),
+            ('conv11', Res_block(layer_num=2, in_channels=32, out_channels=32,
+                in_h=109, in_w=32, batch_norm=True)),
+            ('conv12', Res_block(layer_num=2, in_channels=32, out_channels=32,
+                in_h=109, in_w=32, batch_norm=True)),
+            ('pool21', Res_block(layer_num=2, in_channels=32, out_channels=64,
+                in_h=109, in_w=32, pool_first=True, batch_norm=True)),#->55*16
+            ('conv22', Res_block(layer_num=2, in_channels=64, out_channels=64,
+                in_h=55, in_w=16, batch_norm=True)),
+            ('conv23', Res_block(layer_num=2, in_channels=64, out_channels=64,
+                in_h=55, in_w=16, batch_norm=True)),
+            ('pool31', Res_block(layer_num=2, in_channels=64, out_channels=128,
+                in_h=55, in_w=16, pool_first=True, batch_norm=True)),#->28*8
+            ('conv32', Res_block(layer_num=2, in_channels=128, out_channels=128,
+                in_h=28, in_w=8, batch_norm=True)),
+            ('conv33', Res_block(layer_num=2, in_channels=128, out_channels=128,
+                in_h=28, in_w=8, batch_norm=True)),
+            ('pool41', Res_block(layer_num=2, in_channels=128, out_channels=256,
+                in_h=28, in_w=8, pool_first=True, batch_norm=True)),#->14*4
+            ('conv42', Res_block(layer_num=2, in_channels=256, out_channels=256,
+                in_h=14, in_w=4, batch_norm=True)),
+            ('conv43', Res_block(layer_num=2, in_channels=256, out_channels=256,
+                in_h=14, in_w=4, batch_norm=True))
+            ('pool51', Res_block(layer_num=2, in_channels=256, out_channels=512,
+                in_h=14, in_w=4, pool_first=True, batch_norm=True)),#->14*4
+            ('conv52', Res_block(layer_num=2, in_channels=512, out_channels=512,
+                in_h=7, in_w=2, batch_norm=True)),
+            ('conv53', Res_block(layer_num=2, in_channels=512, out_channels=512,
+                in_h=7, in_w=2, batch_norm=True))
+        ])))
+        self.mlps.append(torch.nn.Linear(in_features=512*7*4, 
+                                         out_features=50))
+        
         self.flatten = nn.Flatten(1)
     
     def forward(self, input: torch.tensor) -> torch.tensor:

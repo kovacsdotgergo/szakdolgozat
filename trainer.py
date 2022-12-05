@@ -90,7 +90,7 @@ class Trainer():
         self.log_message = log_message 
     
     def train(self, train_loader, val_loader, optimizer=torch.optim.AdamW,
-              scheduler_milestones = [25, 50], lr=0.001,
+              scheduler_milestones = [25, 50], scheduler_gamma=0.1, lr=0.001,
               train_epochs=30, val_interval=50, save_best_model=True,
               save_path='./tmp.pth'):
         """@brief   trains the model with the given parameters, saves the best model,
@@ -106,7 +106,8 @@ class Trainer():
         @param[in]  save_path       save path to save the best model, should contain the file name as well"""
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
         self.scheduler = optim.lr_scheduler.MultiStepLR(self.optimizer,
-                                                        scheduler_milestones)
+                                                        scheduler_milestones,
+                                                        gamma=scheduler_gamma)
         # for saving the best model
         _, prev_acc = self.validate(val_loader)
         maxacc = prev_acc
