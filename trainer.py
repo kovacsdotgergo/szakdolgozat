@@ -1,6 +1,7 @@
 import copy
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import matplotlib.pyplot as plt
 import visualization
 
@@ -88,7 +89,8 @@ class Trainer():
         self.last_train_data = None
         self.log_message = log_message 
     
-    def train(self, train_loader, val_loader, optimizer=torch.optim.AdamW, lr=0.001,
+    def train(self, train_loader, val_loader, optimizer=torch.optim.AdamW,
+              scheduler_milestones = [25, 50], lr=0.001,
               train_epochs=30, val_interval=50, save_best_model=True,
               save_path='./tmp.pth'):
         """@brief   trains the model with the given parameters, saves the best model,
@@ -103,6 +105,8 @@ class Trainer():
         @param[in]  save_best_model bool, if saving the best model is required
         @param[in]  save_path       save path to save the best model, should contain the file name as well"""
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
+        self.scheduler = optim.lr_scheduler.MultiStepLR(self.optimizer,
+                                                        scheduler_milestones)
         # for saving the best model
         _, prev_acc = self.validate(val_loader)
         maxacc = prev_acc
@@ -112,6 +116,7 @@ class Trainer():
         for _ in range(train_epochs):
             maxacc, best_model_dict = self._step_epoch(train_loader, val_loader, val_interval, maxacc,
                     best_model_dict)
+            self.scheduler.step()
         if save_best_model and best_model_dict is not None:
             torch.save(best_model_dict, save_path)       
         if self.log_message:
