@@ -307,7 +307,7 @@ class Cnn_res_2d(nn.Module):
             ('conv53', Res_block(layer_num=2, in_channels=512, out_channels=512,
                 in_h=7, in_w=2, batch_norm=True))
         ])))
-        self.mlps.append(torch.nn.Linear(in_features=512*7*4, 
+        self.mlps.append(torch.nn.Linear(in_features=512*7*2, 
                                          out_features=50))
         
         self.flatten = nn.Flatten(1)
