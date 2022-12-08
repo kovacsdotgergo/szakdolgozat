@@ -66,11 +66,10 @@ class Cnn_res_2d(nn.Module):
         @param[in]  version     version of the network, indexed by 
                                 Version_enum class"""
         super(Cnn_res_2d, self).__init__()
-        self.version = version
-        self.cnns = nn.ModuleList()
-        self.mlps = nn.ModuleList()
+        self.cnns = []
+        self.mlps = [] # for storing tuple (in_features, out_features)
         #v1
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -79,11 +78,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=109, in_w=32)),
             ('pool1', Res_block(layer_num=2, in_channels=32, out_channels=64,
                 in_h=109, in_w=32, pool_first=True))#->55*16
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=64*55*16,
-                                         out_features=50))
+        ]))
+        self.mlps.append((64*55*16, 50))
         #v2
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -92,11 +90,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=109, in_w=32, batch_norm=True)),
             ('pool1', Res_block(layer_num=2, in_channels=32, out_channels=64,
                 in_h=109, in_w=32, pool_first=True, batch_norm=True))#->55*16
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=64*55*16,
-                                         out_features=50))
+        ]))
+        self.mlps.append((64*55*16, 50))
         #v3
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -113,11 +110,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=55, in_w=16)),
             ('conv6', Res_block(layer_num=2, in_channels=64, out_channels=64,
                 in_h=55, in_w=16))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=64*55*16,
-                                         out_features=50))
+        ]))
+        self.mlps.append((64*55*16, 50))
         #v4
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -146,11 +142,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=28, in_w=8)),
             ('conv11', Res_block(layer_num=2, in_channels=128, out_channels=128,
                 in_h=28, in_w=8))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=128*28*8,
-                                         out_features=50))
+        ]))
+        self.mlps.append((128*28*8, 50))
         #v5
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -179,11 +174,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=28, in_w=8, batch_norm=True)),
             ('conv11', Res_block(layer_num=2, in_channels=128, out_channels=128,
                 in_h=28, in_w=8, batch_norm=True))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=128*28*8, 
-                                         out_features=50))
+        ]))
+        self.mlps.append((128*28*8, 50))
         #v6
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -220,11 +214,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=14, in_w=4, batch_norm=True)),
             ('conv43', Res_block(layer_num=2, in_channels=256, out_channels=256,
                 in_h=14, in_w=4, batch_norm=True))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=256*14*4, 
-                                         out_features=50))
+        ]))
+        self.mlps.append((256*14*4, 50))
         #v7
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -269,11 +262,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=7, in_w=2, batch_norm=True)),
             ('conv53', Res_block(layer_num=2, in_channels=512, out_channels=512,
                 in_h=7, in_w=2, batch_norm=True))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=512*7*2, 
-                                         out_features=50))
+        ]))
+        self.mlps.append((512*7*2, 50))
         #v8
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -306,11 +298,10 @@ class Cnn_res_2d(nn.Module):
                 in_h=7, in_w=2, batch_norm=True)),
             ('conv53', Res_block(layer_num=2, in_channels=512, out_channels=512,
                 in_h=7, in_w=2, batch_norm=True))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=512*7*2, 
-                                         out_features=50))
+        ]))
+        self.mlps.append((512*7*2, 50))
         #v9 TODO
-        self.cnns.append(nn.Sequential(collections.OrderedDict([
+        self.cnns.append(collections.OrderedDict([
             ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
                 kernel_size=5, padding=2, stride=2)),
             ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
@@ -319,10 +310,14 @@ class Cnn_res_2d(nn.Module):
                 in_h=109, in_w=32)),
             ('conv2', Res_block(layer_num=2, in_channels=32, out_channels=32,
                 in_h=109, in_w=32))
-        ])))
-        self.mlps.append(torch.nn.Linear(in_features=32*109*32,
-                                         out_features=50))
+        ]))
+        self.mlps.append((32*109*32, 50))
 
+        # choosing the the correct layers
+        self.cnn = nn.Sequential(self.cnns[version])
+        in_features, out_features = self.mlps[version]
+        self.mlp = nn.Linear(in_features=in_features,
+                            out_features=out_features)
         self.flatten = nn.Flatten(1)
     
     def forward(self, input: torch.tensor) -> torch.tensor:
@@ -332,10 +327,10 @@ class Cnn_res_2d(nn.Module):
         else:
             input = input.unsqueeze(dim=1)
         # cnn part of network, depending on the version
-        input = self.cnns[self.version](input)
+        input = self.cnn(input)
         input = self.flatten(input)
         # fully connected output layer
-        input = self.mlps[self.version](input)
+        input = self.mlp(input)
         return input
    
 class Res_block(nn.Module):
