@@ -3,31 +3,31 @@ import torch.nn as nn
 import collections
 
 #128x512(436) input mel spect
-class conv2d_v1(nn.Module):
+class Conv2d_v1(nn.Module):
     """@brief   class for 2d CNN used on mel spectogram"""
     def __init__(self):
         super().__init__()
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#128*512
+            nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),#128*512
             nn.ReLU(),
             nn.MaxPool2d(2),#64*256
-            nn.Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#64*256
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),#64*256
             nn.ReLU(),
             nn.MaxPool2d(2),#32*128
-            nn.Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#32*128
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),#32*128
             nn.ReLU(),
             nn.MaxPool2d(2),#16*64
             nn.Dropout(),
 
-            nn.Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#16*64
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),#16*64
             nn.ReLU(),
             nn.MaxPool2d(2),#8*32
             nn.Dropout(),
-            nn.Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#8*32
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),#8*32
             nn.ReLU(),
             nn.MaxPool2d(2),#4*16
             nn.Dropout(),
-            nn.Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),#4*16
+            nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1),#4*16
             nn.ReLU(),
             nn.MaxPool2d(2)#2*8
         )
@@ -309,7 +309,20 @@ class Cnn_res_2d(nn.Module):
         ])))
         self.mlps.append(torch.nn.Linear(in_features=512*7*2, 
                                          out_features=50))
-        
+        #v9 TODO
+        self.cnns.append(nn.Sequential(collections.OrderedDict([
+            ('conv0', nn.Conv2d(in_channels=1, out_channels=16,#436*128->218*64
+                kernel_size=5, padding=2, stride=2)),
+            ('pool0', nn.Conv2d(in_channels=16, out_channels=32,#->109*32
+                kernel_size=3, stride=2, padding=1)),
+            ('conv1', Res_block(layer_num=2, in_channels=32, out_channels=32,
+                in_h=109, in_w=32)),
+            ('conv2', Res_block(layer_num=2, in_channels=32, out_channels=32,
+                in_h=109, in_w=32))
+        ])))
+        self.mlps.append(torch.nn.Linear(in_features=32*109*32,
+                                         out_features=50))
+
         self.flatten = nn.Flatten(1)
     
     def forward(self, input: torch.tensor) -> torch.tensor:
