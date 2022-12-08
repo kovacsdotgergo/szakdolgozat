@@ -60,6 +60,7 @@ class Cnn_res_2d(nn.Module):
         v6 = 5
         v7 = 6
         v8 = 7
+        v9 = 8
 
     def __init__(self, version):
         """@brief   constructor
